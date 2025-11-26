@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('exhibition_visitors', function (Blueprint $table) {
+        Schema::create('ex_page_settings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('exhibition_id')->constrained()->cascadeOnDelete();
+            $table->string('page')->unique();
+            $table->json('features');
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exhibition_visitors');
+        Schema::dropIfExists('ex_page_settings');
     }
 };

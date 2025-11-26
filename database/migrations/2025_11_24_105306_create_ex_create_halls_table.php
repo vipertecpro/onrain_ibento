@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('exhibitors', function (Blueprint $table) {
+        Schema::create('ex_halls', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('exhibition_id')->constrained()->cascadeOnDelete();
+            $table->string('name')->unique();
+            $table->string('slug')->unique();
+            $table->json('exhibit_area_branding');
             $table->timestamps();
         });
     }
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('exhibitors');
+        Schema::dropIfExists('ex_halls');
     }
 };

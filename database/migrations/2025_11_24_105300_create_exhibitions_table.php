@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('global_settings', function (Blueprint $table) {
+        Schema::create('exhibitions', function (Blueprint $table) {
             $table->id();
-            $table->string('meta_key')->unique();
-            $table->string('meta_value')->nullable();
+            $table->string('name')->unique();
+            $table->string('subdomain')->unique();
+            $table->enum('status',[
+                'active',
+                'inactive',
+            ])->default('active');
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('global_settings');
+        Schema::dropIfExists('exhibitions');
     }
 };

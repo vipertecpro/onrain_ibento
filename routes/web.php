@@ -55,12 +55,6 @@ Route::domain('onrain_ibento.test')->group(function () {
         });
     });
 });
-
-/*
-|--------------------------------------------------------------------------
-| SUBDOMAIN: {slug}.onrain_ibento.test → Exhibition Dashboard + Frontend
-|--------------------------------------------------------------------------
-*/
 Route::domain('{exhibitionSlug}.onrain_ibento.test')
     ->middleware([
         'web',
@@ -141,13 +135,6 @@ Route::domain('{exhibitionSlug}.onrain_ibento.test')
             ->where('any', '.*')
             ->name('exhibition.frontend');
     });
-
-/*
-|--------------------------------------------------------------------------
-| Fallback: Any unknown subdomain → redirect to main landing
-| (Laravel 12 safe way – no ->where() on domain)
-|--------------------------------------------------------------------------
-*/
 Route::any('{any}', function () {
     return redirect()->route('landing');
 })->where('any', '.*');

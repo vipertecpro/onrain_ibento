@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('stalls', function (Blueprint $table) {
+        Schema::create('ex_global_settings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('exhibition_id')->constrained()->cascadeOnDelete();
+            $table->string('meta_key')->unique();
+            $table->string('meta_value')->nullable();
             $table->timestamps();
         });
     }
@@ -22,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('stalls');
+        Schema::dropIfExists('ex_global_settings');
     }
 };
