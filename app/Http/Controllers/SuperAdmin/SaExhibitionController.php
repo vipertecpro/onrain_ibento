@@ -44,7 +44,7 @@ class SaExhibitionController extends Controller
             'subdomain' => $validated['subdomain'],
             'status' => $validated['status'],
         ]);
-        if (app()->environment('local')) {
+        if (app()->environment('local')  && PHP_OS_FAMILY === 'Windows') {
             Artisan::call('herd:subdomain', [
                 'subdomain' => $validated['subdomain']
             ]);
@@ -65,7 +65,7 @@ class SaExhibitionController extends Controller
         ]);
         $oldSubdomain = $exhibition->subdomain;
         $exhibition->update($validated);
-        if (app()->environment('local') && $validated['subdomain'] !== $oldSubdomain) {
+        if (app()->environment('local') && PHP_OS_FAMILY === 'Windows' && $validated['subdomain'] !== $oldSubdomain) {
             Artisan::call('herd:subdomain', [
                 'subdomain' => $validated['subdomain'],
                 '--old' => $oldSubdomain
@@ -75,7 +75,7 @@ class SaExhibitionController extends Controller
     }
     public function remove(Exhibition $exhibition)
     {
-        if (app()->environment('local')) {
+        if (app()->environment('local')  && PHP_OS_FAMILY === 'Windows') {
             Artisan::call('herd:subdomain', [
                 '--old' => $exhibition->subdomain,
                 '--delete' => true
