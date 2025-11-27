@@ -18,7 +18,7 @@ class SaDashboardController extends Controller
     }
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::guard('superadmin')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

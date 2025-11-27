@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\ExhibitionVisitor;
+use App\Models\ExVisitorActivity;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +19,7 @@ class CaptureExhibitionVisitor
     {
         if (Auth::check()) {
             $exhibition = $request->attributes->get('exhibition');
-            ExhibitionVisitor::updateOrCreate(
+            ExVisitorActivity::updateOrCreate(
                 [
                     'exhibition_id' => $exhibition->id,
                     'user_id'       => Auth::id(),

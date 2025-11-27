@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('ex_visitor_activities', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ex_exhibitor_id')->constrained()->cascadeOnDelete();
             $table->foreignId('ex_visitor_id')->constrained()->cascadeOnDelete();
             $table->enum('type',[
                 'login',

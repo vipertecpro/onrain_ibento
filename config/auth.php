@@ -40,6 +40,18 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'superadmin' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'exhibition' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'visitor' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
     ],
 
     /*

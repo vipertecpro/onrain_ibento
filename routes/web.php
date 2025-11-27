@@ -1,14 +1,16 @@
 <?php
 
 use App\Http\Controllers\LandingController;
-use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Dashboard\ExhibitorController;
-use App\Http\Controllers\Dashboard\GlobalSettingController;
-use App\Http\Controllers\Dashboard\HallController;
-use App\Http\Controllers\Dashboard\StallCategoryController;
-use App\Http\Controllers\Dashboard\StallController;
-use App\Http\Controllers\Dashboard\VisitorController;
+use App\Http\Controllers\SubDomain\Dashboard\SdAuthenticatedSessionController;
+use App\Http\Controllers\SubDomain\Dashboard\SdDashboardController;
+use App\Http\Controllers\SubDomain\Dashboard\SdExhibitorController;
+use App\Http\Controllers\SubDomain\Dashboard\SdGlobalSettingController;
+use App\Http\Controllers\SubDomain\Dashboard\SdHallController;
+use App\Http\Controllers\SubDomain\Dashboard\SdStallCategoryController;
+use App\Http\Controllers\SubDomain\Dashboard\SdStallController;
+use App\Http\Controllers\SubDomain\Dashboard\SdVisitorController;
+use App\Http\Controllers\SubDomain\SdFrontendController;
+use App\Http\Controllers\SubDomain\SdVisitorAuthController;
 use App\Http\Controllers\SuperAdmin\SaAuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\SaDashboardController;
 use App\Http\Controllers\SuperAdmin\SaExhibitionController;
@@ -17,18 +19,27 @@ use App\Http\Controllers\SuperAdmin\SaRoleController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::domain('onrain_ibento.test')->group(function () {
+Route::domain(config('app.domain'))->group(function () {
     Route::get('/', [LandingController::class, 'index'])->name('landing');
     Route::prefix('super-admin')
     ->as('bankai.')
     ->group(function () {
-        Route::middleware('guest')->group(function () {
+        Route::middleware('guest:superadmin')->group(function () {
             Route::get('/login', [SaAuthenticatedSessionController::class, 'login'])->name('login');
             Route::post('/doLogin', [SaAuthenticatedSessionController::class, 'doLogin'])->name('doLogin');
         });
-        Route::middleware(['auth', 'role:admin|developer'])->group(function(){
+        Route::middleware(['auth:superadmin', 'role:admin|developer'])->group(function(){
             Route::get('/', [SaDashboardController::class,'index'])->name('dashboard');
             Route::post('/logout', [SaDashboardController::class, 'logout'])->name('logout');
+            Route::controller(SaExhibitionController::class)->group(function () {
+                Route::get('exhibitions', 'list')->name('exhibitions.list');
+                Route::get('exhibitions/create', 'create')->name('exhibitions.create');
+                Route::post('exhibitions/store', 'store')->name('exhibitions.store');
+                Route::get('exhibitions/edit/{exhibition}', 'edit')->name('exhibitions.edit');
+                Route::post('exhibitions/update/{exhibition}', 'update')->name('exhibitions.update');
+                Route::delete('exhibitions/remove/{exhibition}', 'remove')->name('exhibitions.remove');
+                Route::delete('exhibitions/removeAll', 'removeAll')->name('exhibitions.removeAll');
+            });
             Route::controller(SaRoleController::class)->group(function () {
                 Route::get('roles', 'list')->name('roles.list');
                 Route::get('roles/create', 'create')->name('roles.create');
@@ -43,98 +54,92 @@ Route::domain('onrain_ibento.test')->group(function () {
                 Route::get('permissions/create', 'create')->name('permissions.create');
                 Route::post('permissions', 'store')->name('permissions.store');
             });
-            Route::controller(SaExhibitionController::class)->group(function () {
-                Route::get('exhibitions', 'list')->name('exhibitions.list');
-                Route::get('exhibitions/create', 'create')->name('exhibitions.create');
-                Route::post('exhibitions', 'store')->name('exhibitions.store');
-                Route::get('exhibitions/edit/{exhibition}', 'edit')->name('exhibitions.edit');
-                Route::put('exhibitions/{exhibition}', 'update')->name('exhibitions.update');
-                Route::delete('exhibitions/{exhibition}', 'remove')->name('exhibitions.remove');
-                Route::delete('exhibitions/removeAll', 'removeAll')->name('exhibitions.removeAll');
-            });
         });
     });
 });
-Route::domain('{exhibitionSlug}.onrain_ibento.test')
-    ->middleware([
-        'web',
-        'exhibition.subdomain',
-        'auth',
-        'role:admin|developer|exhibitor|visitor',
-        'capture.exhibition',
-    ])
+Route::domain('{exhibitionSlug}.'.config('app.domain'))
+    ->as('subDomain.')
+    ->middleware('resolveSubDomain')
     ->group(function () {
-
-        Route::middleware('role:admin|developer|exhibitor')
-            ->prefix('dashboard')
-            ->as('dashboard.')
-            ->group(function () {
-                Route::get('/', [DashboardController::class, 'index'])->name('index');
-
-                // Halls
-                Route::controller(HallController::class)->group(function () {
-                    Route::get('halls', 'list')->name('halls.list');
-                    Route::get('halls/create', 'create')->name('halls.create');
-                    Route::post('halls', 'store')->name('halls.store');
-                    Route::get('halls/edit/{hall}', 'edit')->name('halls.edit');
-                    Route::put('halls/{hall}', 'update')->name('halls.update');
-                    Route::delete('halls/{hall}', 'remove')->name('halls.remove');
-                    Route::delete('halls/removeAll', 'removeAll')->name('halls.removeAll');
-                });
-
-                // Stall Categories
-                Route::controller(StallCategoryController::class)->group(function () {
-                    Route::get('stall-categories', 'list')->name('stall-categories.list');
-                    Route::get('stall-categories/create', 'create')->name('stall-categories.create');
-                    Route::post('stall-categories', 'store')->name('stall-categories.store');
-                    Route::get('stall-categories/edit/{stallCategory}', 'edit')->name('stall-categories.edit');
-                    Route::put('stall-categories/{stallCategory}', 'update')->name('stall-categories.update');
-                    Route::delete('stall-categories/{stallCategory}', 'remove')->name('stall-categories.remove');
-                });
-
-                // Stalls
-                Route::controller(StallController::class)->group(function () {
-                    Route::get('stalls', 'list')->name('stalls.list');
-                    Route::get('stalls/create', 'create')->name('stalls.create');
-                    Route::post('stalls', 'store')->name('stalls.store');
-                    Route::get('stalls/edit/{stall}', 'edit')->name('stalls.edit');
-                    Route::put('stalls/{stall}', 'update')->name('stalls.update');
-                    Route::delete('stalls/{stall}', 'remove')->name('stalls.remove');
-                    Route::delete('stalls/removeAll', 'removeAll')->name('stalls.removeAll');
-                });
-
-                // Visitors
-                Route::controller(VisitorController::class)->group(function () {
-                    Route::get('visitors', 'list')->name('visitors.list');
-                    Route::get('visitors/create', 'create')->name('visitors.create');
-                    Route::post('visitors', 'store')->name('visitors.store');
-                    Route::get('visitors/edit/{visitor}', 'edit')->name('visitors.edit');
-                    Route::put('visitors/{visitor}', 'update')->name('visitors.update');
-                    Route::delete('visitors/{visitor}', 'remove')->name('visitors.remove');
-                });
-
-                // Exhibitors
-                Route::controller(ExhibitorController::class)->group(function () {
-                    Route::get('exhibitors', 'list')->name('exhibitors.list');
-                    Route::get('exhibitors/create', 'create')->name('exhibitors.create');
-                    Route::post('exhibitors', 'store')->name('exhibitors.store');
-                    Route::get('exhibitors/edit/{exhibitor}', 'edit')->name('exhibitors.edit');
-                    Route::put('exhibitors/{exhibitor}', 'update')->name('exhibitors.update');
-                    Route::delete('exhibitors/{exhibitor}', 'remove')->name('exhibitors.remove');
-                });
-
-                // Global Settings
-                Route::controller(GlobalSettingController::class)->group(function () {
-                    Route::get('global-settings', 'edit')->name('global-settings.edit');
-                    Route::put('global-settings', 'update')->name('global-settings.update');
-                });
+    Route::middleware('guest:visitor')->group(function () {
+        Route::get('/login', [SdVisitorAuthController::class, 'loginPage'])->name('login-page');
+        Route::post('/login', [SdVisitorAuthController::class, 'doLogin'])->name('do-login');
+        Route::get('/register', [SdVisitorAuthController::class, 'register'])->name('register-page');
+        Route::post('/doRegister', [SdVisitorAuthController::class, 'doRegister'])->name('do-register');
+    });
+    Route::middleware('auth:visitor,exhibition')->group(function () {
+        Route::get('/', [SdFrontendController::class, 'index'])->name('frontend');
+        Route::get('/lobby', [SdFrontendController::class, 'lobbyPage'])->name('lobby-page');
+    });
+    Route::prefix('dashboardPanel')->name('dashboardPanel.')->group(function () {
+        Route::middleware('guest:exhibition')->group(function () {
+            Route::get('/', [SdAuthenticatedSessionController::class, 'login'])->name('login');
+            Route::post('/login', [SdAuthenticatedSessionController::class, 'doLogin'])->name('doLogin');
+        });
+        Route::middleware(['auth:exhibition', 'role:admin|developer'])->group(function(){
+            Route::get('/dashboard', [SdDashboardController::class,'index'])->name('dashboard');
+            Route::post('/logout', [SdDashboardController::class, 'logout'])->name('logout');
+            Route::controller(SdHallController::class)->group(function () {
+                Route::get('halls', 'list')->name('halls.list');
+                Route::get('halls/create', 'create')->name('halls.create');
+                Route::post('halls', 'store')->name('halls.store');
+                Route::get('halls/edit/{hall}', 'edit')->name('halls.edit');
+                Route::put('halls/{hall}', 'update')->name('halls.update');
+                Route::delete('halls/{hall}', 'remove')->name('halls.remove');
+                Route::delete('halls/removeAll', 'removeAll')->name('halls.removeAll');
             });
 
-        // Frontend SPA (all other URLs)
-        Route::get('/{any?}', [FrontendController::class, 'index'])
-            ->where('any', '.*')
-            ->name('exhibition.frontend');
+            // Stall Categories
+            Route::controller(SdStallCategoryController::class)->group(function () {
+                Route::get('stall-categories', 'list')->name('stall-categories.list');
+                Route::get('stall-categories/create', 'create')->name('stall-categories.create');
+                Route::post('stall-categories', 'store')->name('stall-categories.store');
+                Route::get('stall-categories/edit/{stallCategory}', 'edit')->name('stall-categories.edit');
+                Route::put('stall-categories/{stallCategory}', 'update')->name('stall-categories.update');
+                Route::delete('stall-categories/{stallCategory}', 'remove')->name('stall-categories.remove');
+            });
+
+            // Stalls
+            Route::controller(SdStallController::class)->group(function () {
+                Route::get('stalls', 'list')->name('stalls.list');
+                Route::get('stalls/create', 'create')->name('stalls.create');
+                Route::post('stalls', 'store')->name('stalls.store');
+                Route::get('stalls/edit/{stall}', 'edit')->name('stalls.edit');
+                Route::put('stalls/{stall}', 'update')->name('stalls.update');
+                Route::delete('stalls/{stall}', 'remove')->name('stalls.remove');
+                Route::delete('stalls/removeAll', 'removeAll')->name('stalls.removeAll');
+            });
+
+            // Visitors
+            Route::controller(SdVisitorController::class)->group(function () {
+                Route::get('visitors', 'list')->name('visitors.list');
+                Route::get('visitors/create', 'create')->name('visitors.create');
+                Route::post('visitors', 'store')->name('visitors.store');
+                Route::get('visitors/edit/{visitor}', 'edit')->name('visitors.edit');
+                Route::put('visitors/{visitor}', 'update')->name('visitors.update');
+                Route::delete('visitors/{visitor}', 'remove')->name('visitors.remove');
+            });
+
+            // Exhibitors
+            Route::controller(SdExhibitorController::class)->group(function () {
+                Route::get('exhibitors', 'list')->name('exhibitors.list');
+                Route::get('exhibitors/create', 'create')->name('exhibitors.create');
+                Route::post('exhibitors', 'store')->name('exhibitors.store');
+                Route::get('exhibitors/edit/{exhibitor}', 'edit')->name('exhibitors.edit');
+                Route::put('exhibitors/{exhibitor}', 'update')->name('exhibitors.update');
+                Route::delete('exhibitors/{exhibitor}', 'remove')->name('exhibitors.remove');
+            });
+
+            // Global Settings
+            Route::controller(SdGlobalSettingController::class)->group(function () {
+                Route::get('global-settings', 'edit')->name('global-settings.edit');
+                Route::put('global-settings', 'update')->name('global-settings.update');
+            });
+        });
     });
-Route::any('{any}', function () {
+
+});
+Route::fallback(function () {
     return redirect()->route('landing');
-})->where('any', '.*');
+});
+

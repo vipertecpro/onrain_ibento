@@ -21,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'auth'                  => DynamicAuthenticationRedirect::class,
-            'exhibition.subdomain'  => ResolveExhibitionSubdomain::class,
+            'resolveSubDomain'      => ResolveExhibitionSubdomain::class,
             'capture.exhibition'    => CaptureExhibitionVisitor::class,
             'capture.stall'         => CaptureStallVisitor::class,
             'role'                  => RoleMiddleware::class,

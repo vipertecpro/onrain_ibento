@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Http\Controllers\SubDomain\Dashboard;
+
+use App\Http\Controllers\Controller;
+
+class SdHallController extends Controller
+{
+    //
+}
