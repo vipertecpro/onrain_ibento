@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exhibition;
+use App\Models\ExRegistrationFormField;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
@@ -36,14 +37,22 @@ class SaExhibitionController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string'],
             'subdomain' => ['required', 'unique:exhibitions,subdomain'],
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'builder_schema' => 'nullable|json',
         ]);
 
-        Exhibition::create([
+        $exhibition = Exhibition::create([
             'name' => $validated['name'],
             'subdomain' => $validated['subdomain'],
             'status' => $validated['status'],
         ]);
+        if ($request->has('builder_schema')) {
+            ExRegistrationFormField::create([
+                'exhibition_id' => $exhibition->id,
+                'builder_schema' => json_decode($validated['builder_schema'],true),
+                'created_by' => auth()->id(),
+            ]);
+        }
         if (app()->environment('local')  && PHP_OS_FAMILY === 'Windows') {
             Artisan::call('herd:subdomain', [
                 'subdomain' => $validated['subdomain']
@@ -53,7 +62,7 @@ class SaExhibitionController extends Controller
     }
     public function edit(Exhibition $exhibition){
         return Inertia::render('superAdmin/dashboard/exhibitions/form', [
-            'formData' => $exhibition,
+            'formData' => $exhibition->load('registration_form'),
             'mode' => 'edit',
         ]);
     }
@@ -61,10 +70,19 @@ class SaExhibitionController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'unique:exhibitions,name,'.$exhibition->id],
             'subdomain' => ['required','string', 'unique:exhibitions,subdomain,'.$exhibition->id],
-            'status' => 'required|in:active,inactive'
+            'status' => 'required|in:active,inactive',
+            'builder_schema' => 'nullable|json',
         ]);
         $oldSubdomain = $exhibition->subdomain;
         $exhibition->update($validated);
+        ExRegistrationFormField::updateOrCreate(
+            ['exhibition_id' => $exhibition->id],
+            [
+                'builder_schema' => json_decode($validated['builder_schema'],true),
+                'created_by' => auth()->id(),
+            ]
+        );
+
         if (app()->environment('local') && PHP_OS_FAMILY === 'Windows' && $validated['subdomain'] !== $oldSubdomain) {
             Artisan::call('herd:subdomain', [
                 'subdomain' => $validated['subdomain'],

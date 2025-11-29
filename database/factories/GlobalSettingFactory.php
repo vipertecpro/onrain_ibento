@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GlobalSetting>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ExGlobalSetting>
  */
 class GlobalSettingFactory extends Factory
 {

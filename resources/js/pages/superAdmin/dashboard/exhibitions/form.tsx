@@ -4,19 +4,20 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput, InputGroupText } from '@/components/ui/input-group';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { BreadcrumbItem, Exhibition, ExhibitionFormProps } from '@/types';
+import { BreadcrumbItem, BuilderItem, Exhibition, ExhibitionFormProps, InputComponent, RegistrationField, RegistrationForm } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Form, Head, Link } from '@inertiajs/react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import bankai from '@/routes/bankai';
 import SaAppLayout from '@/layouts/superAdmin/sa-app-layout';
 import SaExhibitionController from '@/actions/App/Http/Controllers/SuperAdmin/SaExhibitionController';
 import { IconCheck, IconCopy } from '@tabler/icons-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import RegistrationFormEditor from '@/pages/superAdmin/dashboard/exhibitions/registrationFormEditor';
 
 export default function ExhibitionsForm({ formData, mode }: ExhibitionFormProps) {
     const data = formData ?? ({} as Exhibition);
@@ -35,6 +36,54 @@ export default function ExhibitionsForm({ formData, mode }: ExhibitionFormProps)
     const protocol = typeof window !== "undefined" ? window.location.protocol.replace(":", "") : "https";
     const appDomain = import.meta.env.VITE_APP_DOMAIN;
     const [copy, isCopied] = useCopyToClipboard();
+
+    /**
+     * Build a safe initial builder schema for the editor.
+     * - If server already returned a proper builder_schema array, use it.
+     * - If server returned old `fields` array (no `id`), map them to InputComponents.
+     */
+    const builderInitial: BuilderItem[] = React.useMemo(() => {
+        const registrationForm: RegistrationForm | null =
+            formData?.registration_form ?? null;
+
+        if (!registrationForm) return [];
+
+        //
+        // CASE 1: Server already returns new BuilderItem[] (correct format)
+        //
+        if (Array.isArray(registrationForm.builder_schema)) {
+            return registrationForm.builder_schema.map((item) => {
+                // ensure id exists
+                if (!item.id) {
+                    const newId = "imported-" + crypto.randomUUID();
+                    return { ...item, id: newId };
+                }
+                return item;
+            });
+        }
+
+        //
+        // CASE 2: Server is still returning old RegistrationField[] structure
+        //
+        if (Array.isArray(registrationForm.fields)) {
+            return registrationForm.fields.map((field: RegistrationField) => {
+                const fieldId = field.key ?? crypto.randomUUID();
+
+                const inputItem: InputComponent = {
+                    id: String(fieldId),
+                    type: "input",
+                    label: field.label ?? String(field.key ?? "Field"),
+                    placeholder: "",
+                    required: Boolean(field.required),
+                };
+
+                return inputItem as BuilderItem;
+            });
+        }
+
+        return [];
+    }, [formData]);
+
     return (
         <SaAppLayout breadcrumbs={breadcrumbs}>
             <Head title={mode === 'create' ? 'Create Exhibition' : 'Edit Exhibition'} />
@@ -105,7 +154,7 @@ export default function ExhibitionsForm({ formData, mode }: ExhibitionFormProps)
                                                 <input type="hidden" name="status" value={selectedStatus} />
                                                 <InputError message={errors.status} />
                                             </div>
-                                            <div className="grid gap-2">
+                                            <div className="grid gap-2 col-span-2">
                                                 <Label htmlFor="name">Name</Label>
                                                 <InputGroup>
                                                     <InputGroupInput
@@ -126,38 +175,77 @@ export default function ExhibitionsForm({ formData, mode }: ExhibitionFormProps)
                                                 </InputGroup>
                                                 <InputError message={errors.name} />
                                             </div>
-                                            <div className="grid gap-2">
-                                                <Label htmlFor="subdomain">Subdomain</Label>
-                                                <InputGroup>
-                                                    <InputGroupAddon>
-                                                        <InputGroupText>{protocol}://</InputGroupText>
-                                                    </InputGroupAddon>
-                                                    <InputGroupInput
-                                                        name="subdomain"
-                                                        type="text"
-                                                        value={subdomain}
-                                                        onChange={(e) => setSubdomain(e.target.value)}
-                                                        placeholder={'Enter subdomain'}
-                                                    />
-                                                    <InputGroupAddon align="inline-end">
-                                                        <InputGroupText>{appDomain}</InputGroupText>
-                                                        <InputGroupButton
-                                                            aria-label="Copy"
-                                                            title="Copy"
-                                                            size="icon-xs"
-                                                            onClick={() => {
-                                                                const url = `https://${subdomain}.${appDomain}`;
-                                                                copy(url);
-                                                            }}
-                                                            className={'cursor-pointer'}
-                                                        >
-                                                            {isCopied ? <IconCheck /> : <IconCopy />}
-                                                        </InputGroupButton>
-                                                    </InputGroupAddon>
+                                            <div className="grid gap-2 grid-cols-1 xl:grid-cols-2 col-span-2">
+                                                <div className={'grid gap-2'}>
+                                                    <Label htmlFor="subdomain">Subdomain For Visitors</Label>
+                                                    <InputGroup>
+                                                        <InputGroupAddon>
+                                                            <InputGroupText>{protocol}://</InputGroupText>
+                                                        </InputGroupAddon>
+                                                        <InputGroupInput
+                                                            name="subdomain"
+                                                            type="text"
+                                                            value={subdomain}
+                                                            onChange={(e) => setSubdomain(e.target.value)}
+                                                            placeholder={'Enter subdomain'}
+                                                        />
+                                                        <InputGroupAddon align="inline-end">
+                                                            <InputGroupText>{appDomain}</InputGroupText>
+                                                            <InputGroupButton
+                                                                aria-label="Copy"
+                                                                title="Copy"
+                                                                size="icon-xs"
+                                                                onClick={() => {
+                                                                    const url = `${protocol}://${subdomain}.${appDomain}`;
+                                                                    copy(url);
+                                                                }}
+                                                                className={'cursor-pointer'}
+                                                            >
+                                                                {isCopied ? <IconCheck /> : <IconCopy />}
+                                                            </InputGroupButton>
+                                                        </InputGroupAddon>
 
-                                                </InputGroup>
-                                                <InputError message={errors.subdomain} />
+                                                    </InputGroup>
+                                                    <InputError message={errors.subdomain} />
+                                                </div>
+                                                <div className={'grid gap-2'}>
+                                                    <Label htmlFor="subdomain">Subdomain For Admin/Exhibitor</Label>
+                                                    <InputGroup>
+                                                        <InputGroupAddon>
+                                                            <InputGroupText>{protocol}://</InputGroupText>
+                                                        </InputGroupAddon>
+                                                        <InputGroupInput
+                                                            name="subdomainForAdminExhibitor"
+                                                            type="text"
+                                                            value={subdomain}
+                                                            onChange={(e) => setSubdomain(e.target.value)}
+                                                            placeholder={'Enter subdomain'}
+                                                            disabled
+                                                        />
+                                                        <InputGroupAddon align="inline-end">
+                                                            <InputGroupText>{appDomain}/dashboardPanel</InputGroupText>
+                                                            <InputGroupButton
+                                                                aria-label="Copy"
+                                                                title="Copy"
+                                                                size="icon-xs"
+                                                                onClick={() => {
+                                                                    const url = `${protocol}://${subdomain}.${appDomain}/dashboardPanel`;
+                                                                    copy(url);
+                                                                }}
+                                                                className={'cursor-pointer'}
+                                                            >
+                                                                {isCopied ? <IconCheck /> : <IconCopy />}
+                                                            </InputGroupButton>
+                                                        </InputGroupAddon>
+                                                    </InputGroup>
+                                                    <InputError message={errors.subdomain} />
+                                                </div>
                                             </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="rounded-md shadow-none p-0 ">
+                                        <CardContent className="p-4">
+                                            <RegistrationFormEditor initial={builderInitial} />
                                         </CardContent>
                                     </Card>
                                 </div>

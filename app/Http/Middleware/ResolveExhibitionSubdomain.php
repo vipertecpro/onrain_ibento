@@ -36,7 +36,7 @@ class ResolveExhibitionSubdomain
             abort(404);
         }
         if($exhibition->status !== 'active'){
-            return Inertia::render('exhibitionNotActive');
+            return Inertia::render('subDomain/exhibitionNotActive');
         }
         app()->instance('currentExhibition', $exhibition);
         $request->attributes->add(['currentExhibition' => $exhibition]);

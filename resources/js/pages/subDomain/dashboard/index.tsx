@@ -1,19 +1,24 @@
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import SdAppLayout from '@/layouts/subDomain/sd-app-layout';
+import { dashboard } from '@/routes/subDomain/dashboardPanel';
+import { usePage } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
 
 export default function SubdomainDashboard({
                                                pageTitle
                                            }:{
     pageTitle: string
 }) {
+    const { exhibition } = usePage<SharedData>().props;
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard({
+                exhibitionSlug : exhibition.subdomain
+            }).url,
+        },
+    ];
     return (
         <SdAppLayout title={pageTitle} breadcrumbs={breadcrumbs}>
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">

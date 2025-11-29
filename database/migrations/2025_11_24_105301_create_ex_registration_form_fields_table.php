@@ -14,12 +14,8 @@ return new class extends Migration
         Schema::create('ex_registration_form_fields', function (Blueprint $table) {
             $table->id();
             $table->foreignId('exhibition_id')->constrained()->cascadeOnDelete();
-            $table->string('label');
-            $table->string('name');
-            $table->string('type');
-            $table->json('options')->nullable();
-            $table->boolean('required')->default(false);
-            $table->integer('order')->default(0);
+            $table->json('builder_schema');
+            $table->unsignedBigInteger('created_by');
             $table->timestamps();
         });
     }

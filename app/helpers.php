@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\ExGlobalSetting;
+
 if (!function_exists('currentExhibition')) {
     /**
      * Get the current exhibition based on subdomain

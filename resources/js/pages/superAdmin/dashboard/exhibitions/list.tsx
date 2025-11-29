@@ -36,7 +36,20 @@ const columns: ColumnDef<Exhibition>[] = [
                 : "https";
             const fullUrl = `${protocol}://${row.original.subdomain}.${appDomain}`;
             return (
-                <a href={fullUrl} target={'_blank'} className="text-blue-600 underline break-all cursor-pointer">{fullUrl}</a>
+                <div>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td className={'w-40'}>For Visitors</td>
+                                <td><a href={fullUrl} target={'_blank'} className="text-blue-600 underline break-all cursor-pointer">{fullUrl}</a></td>
+                            </tr>
+                            <tr>
+                                <td>For Admin/Exhibitor</td>
+                                <td><a href={fullUrl + '/dashboardPanel'} target={'_blank'} className="text-blue-600 underline break-all cursor-pointer">{fullUrl}/dashboardPanel</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             );
         },
     },

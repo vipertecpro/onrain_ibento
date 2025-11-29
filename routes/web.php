@@ -6,6 +6,7 @@ use App\Http\Controllers\SubDomain\Dashboard\SdDashboardController;
 use App\Http\Controllers\SubDomain\Dashboard\SdExhibitorController;
 use App\Http\Controllers\SubDomain\Dashboard\SdGlobalSettingController;
 use App\Http\Controllers\SubDomain\Dashboard\SdHallController;
+use App\Http\Controllers\SubDomain\Dashboard\SdPageSettingController;
 use App\Http\Controllers\SubDomain\Dashboard\SdStallCategoryController;
 use App\Http\Controllers\SubDomain\Dashboard\SdStallController;
 use App\Http\Controllers\SubDomain\Dashboard\SdVisitorController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\SubDomain\SdVisitorAuthController;
 use App\Http\Controllers\SuperAdmin\SaAuthenticatedSessionController;
 use App\Http\Controllers\SuperAdmin\SaDashboardController;
 use App\Http\Controllers\SuperAdmin\SaExhibitionController;
+use App\Http\Controllers\SuperAdmin\SaExhibitionRegistrationFormController;
 use App\Http\Controllers\SuperAdmin\SaPermissionController;
 use App\Http\Controllers\SuperAdmin\SaRoleController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +41,7 @@ Route::domain(config('app.domain'))->group(function () {
                 Route::post('exhibitions/update/{exhibition}', 'update')->name('exhibitions.update');
                 Route::delete('exhibitions/remove/{exhibition}', 'remove')->name('exhibitions.remove');
                 Route::delete('exhibitions/removeAll', 'removeAll')->name('exhibitions.removeAll');
+
             });
             Route::controller(SaRoleController::class)->group(function () {
                 Route::get('roles', 'list')->name('roles.list');
@@ -79,6 +82,31 @@ Route::domain('{exhibitionSlug}.'.config('app.domain'))
         Route::middleware(['auth:exhibition', 'role:admin|developer'])->group(function(){
             Route::get('/dashboard', [SdDashboardController::class,'index'])->name('dashboard');
             Route::post('/logout', [SdDashboardController::class, 'logout'])->name('logout');
+            Route::controller(SdGlobalSettingController::class)->group(function () {
+                Route::get('global-settings', 'edit')->name('global-settings.edit');
+                Route::put('global-settings', 'update')->name('global-settings.update');
+                Route::delete('global-settings/delete', 'deleteFile')->name('global-settings.deleteFile');
+            });
+            Route::controller(SdVisitorController::class)->group(function () {
+                Route::get('visitors', 'list')->name('visitors.list');
+                Route::get('visitors/create', 'create')->name('visitors.create');
+                Route::post('visitors', 'store')->name('visitors.store');
+                Route::get('visitors/edit/{visitor}', 'edit')->name('visitors.edit');
+                Route::put('visitors/{visitor}', 'update')->name('visitors.update');
+                Route::delete('visitors/{visitor}', 'remove')->name('visitors.remove');
+            });
+            Route::controller(SdExhibitorController::class)->group(function () {
+                Route::get('exhibitors', 'list')->name('exhibitors.list');
+                Route::get('exhibitors/create', 'create')->name('exhibitors.create');
+                Route::post('exhibitors', 'store')->name('exhibitors.store');
+                Route::get('exhibitors/edit/{exhibitor}', 'edit')->name('exhibitors.edit');
+                Route::put('exhibitors/{exhibitor}', 'update')->name('exhibitors.update');
+                Route::delete('exhibitors/{exhibitor}', 'remove')->name('exhibitors.remove');
+            });
+            Route::controller(SdPageSettingController::class)->group(function () {
+                Route::get('pageSettings', 'list')->name('pageSettings.list');
+                Route::post('pageSettings', 'update')->name('pageSettings.update');
+            });
             Route::controller(SdHallController::class)->group(function () {
                 Route::get('halls', 'list')->name('halls.list');
                 Route::get('halls/create', 'create')->name('halls.create');
@@ -88,8 +116,6 @@ Route::domain('{exhibitionSlug}.'.config('app.domain'))
                 Route::delete('halls/{hall}', 'remove')->name('halls.remove');
                 Route::delete('halls/removeAll', 'removeAll')->name('halls.removeAll');
             });
-
-            // Stall Categories
             Route::controller(SdStallCategoryController::class)->group(function () {
                 Route::get('stall-categories', 'list')->name('stall-categories.list');
                 Route::get('stall-categories/create', 'create')->name('stall-categories.create');
@@ -98,8 +124,6 @@ Route::domain('{exhibitionSlug}.'.config('app.domain'))
                 Route::put('stall-categories/{stallCategory}', 'update')->name('stall-categories.update');
                 Route::delete('stall-categories/{stallCategory}', 'remove')->name('stall-categories.remove');
             });
-
-            // Stalls
             Route::controller(SdStallController::class)->group(function () {
                 Route::get('stalls', 'list')->name('stalls.list');
                 Route::get('stalls/create', 'create')->name('stalls.create');
@@ -108,32 +132,6 @@ Route::domain('{exhibitionSlug}.'.config('app.domain'))
                 Route::put('stalls/{stall}', 'update')->name('stalls.update');
                 Route::delete('stalls/{stall}', 'remove')->name('stalls.remove');
                 Route::delete('stalls/removeAll', 'removeAll')->name('stalls.removeAll');
-            });
-
-            // Visitors
-            Route::controller(SdVisitorController::class)->group(function () {
-                Route::get('visitors', 'list')->name('visitors.list');
-                Route::get('visitors/create', 'create')->name('visitors.create');
-                Route::post('visitors', 'store')->name('visitors.store');
-                Route::get('visitors/edit/{visitor}', 'edit')->name('visitors.edit');
-                Route::put('visitors/{visitor}', 'update')->name('visitors.update');
-                Route::delete('visitors/{visitor}', 'remove')->name('visitors.remove');
-            });
-
-            // Exhibitors
-            Route::controller(SdExhibitorController::class)->group(function () {
-                Route::get('exhibitors', 'list')->name('exhibitors.list');
-                Route::get('exhibitors/create', 'create')->name('exhibitors.create');
-                Route::post('exhibitors', 'store')->name('exhibitors.store');
-                Route::get('exhibitors/edit/{exhibitor}', 'edit')->name('exhibitors.edit');
-                Route::put('exhibitors/{exhibitor}', 'update')->name('exhibitors.update');
-                Route::delete('exhibitors/{exhibitor}', 'remove')->name('exhibitors.remove');
-            });
-
-            // Global Settings
-            Route::controller(SdGlobalSettingController::class)->group(function () {
-                Route::get('global-settings', 'edit')->name('global-settings.edit');
-                Route::put('global-settings', 'update')->name('global-settings.update');
             });
         });
     });

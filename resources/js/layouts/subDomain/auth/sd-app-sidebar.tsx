@@ -1,4 +1,3 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
     Sidebar,
@@ -9,26 +8,86 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem, type SharedData } from '@/types';
+
+import { type NavGroup, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutGrid } from 'lucide-react';
+import { CogIcon, Grip, GripHorizontal, LayoutGrid, PanelsTopLeftIcon, Users, VectorSquare } from 'lucide-react';
+
 import { SdNavUser } from '@/layouts/subDomain/auth/sd-nav-user';
 import bankai from '@/routes/bankai';
 import subDomain from '@/routes/subDomain';
+
 export function SdAppSidebar() {
     const { exhibition } = usePage<SharedData>().props;
-    const mainNavItems: NavItem[] = [
+
+    const mainNavGroups: NavGroup[] = [
         {
-            title: 'Dashboard',
-            href: subDomain.dashboardPanel.dashboard({
-                exhibitionSlug : exhibition.subdomain
-            }).url,
-            icon: LayoutGrid,
+            title: "Platform",
+            items: [
+                {
+                    title: 'Dashboard',
+                    href: subDomain.dashboardPanel.dashboard({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                    icon: LayoutGrid,
+                },
+                {
+                    title: 'Global Settings',
+                    href: subDomain.dashboardPanel.globalSettings.edit({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                    icon: CogIcon,
+                },
+                {
+                    title: 'Page Settings',
+                    icon: PanelsTopLeftIcon,
+                    href: subDomain.dashboardPanel.pageSettings.list({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                },
+                {
+                    title: 'Users',
+                    icon: Users,
+                    href : '#',
+                    children: [
+                        {
+                            title: 'Visitors',
+                            href: subDomain.dashboardPanel.visitors.list({
+                                exhibitionSlug: exhibition.subdomain
+                            }).url,
+                        },{
+                            title: 'Exhibitors',
+                            href: subDomain.dashboardPanel.exhibitors.list({
+                                exhibitionSlug: exhibition.subdomain
+                            }).url,
+                        }
+                    ]
+                },
+                {
+                    title: 'Halls',
+                    icon: VectorSquare,
+                    href: subDomain.dashboardPanel.halls.list({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                },
+                {
+                    title: 'Stall Categories',
+                    icon: Grip,
+                    href: subDomain.dashboardPanel.halls.list({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                },
+                {
+                    title: 'Stalls',
+                    icon: GripHorizontal,
+                    href: subDomain.dashboardPanel.halls.list({
+                        exhibitionSlug: exhibition.subdomain
+                    }).url,
+                },
+            ]
         }
     ];
 
-    const footerNavItems: NavItem[] = [
-    ];
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -42,11 +101,12 @@ export function SdAppSidebar() {
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
+
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain groups={mainNavGroups} />
             </SidebarContent>
+
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <SdNavUser />
             </SidebarFooter>
         </Sidebar>

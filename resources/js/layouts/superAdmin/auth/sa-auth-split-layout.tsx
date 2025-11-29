@@ -1,8 +1,9 @@
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { type PropsWithChildren } from 'react';
+import React, { type PropsWithChildren } from 'react';
 
 import bankai from '@/routes/bankai';
+import Aurora from '@/components/Aurora';
 interface AuthLayoutProps {
     title?: string;
     description?: string;
@@ -14,17 +15,25 @@ export default function SaAuthSplitLayout({
                                             title,
                                             description,
                                         }: PropsWithChildren<AuthLayoutProps>) {
-    const { name, quote } = usePage<SharedData>().props;
+    const { quote } = usePage<SharedData>().props;
 
     return (
         <div className="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
-                <div className="absolute inset-0 bg-zinc-900" />
+            <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex">
+                <div className="absolute inset-0 bg-black">
+                    <Aurora
+                        colorStops={["#505050", "#252525", "#151515"]}
+                        blend={1}
+                        amplitude={0.5}
+                        speed={1.5}
+                    />
+                </div>
                 <Link
                     href={bankai.dashboard().url}
-                    className="relative z-20 flex items-center text-lg font-medium"
+                    className="relative z-20 flex items-center text-lg font-medium gap-4"
                 >
-                    {name}  LOGO HERE
+                    <img src={'/logo_white.webp'} alt={'site_logo'} width={80} height={80}/>
+                    <p className={'py-4 font-bold italic'}>Virtual Innovation Platform</p>
                 </Link>
                 {quote && (
                     <div className="relative z-20 mt-auto">
@@ -43,9 +52,10 @@ export default function SaAuthSplitLayout({
                 <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
                     <Link
                         href={bankai.dashboard().url}
-                        className="relative z-20 flex items-center justify-center lg:hidden"
+                        className="relative z-20 flex flex-col items-center justify-center lg:hidden"
                     >
-                        LOGO HERE
+                        <img src={'/logo_white.webp'} alt={'site_logo'} width={80} height={80}/>
+                        <p className={'py-4 font-bold italic'}>Virtual Innovation Platform</p>
                     </Link>
                     <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
                         <h1 className="text-xl font-medium">{title}</h1>

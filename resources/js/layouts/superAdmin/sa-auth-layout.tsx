@@ -1,5 +1,8 @@
+import '../../../css/app.css';
 import SaAuthSplitLayout from '@/layouts/superAdmin/auth/sa-auth-split-layout';
 import React from 'react';
+import { initializeTheme } from '@/hooks/use-appearance';
+initializeTheme();
 
 export default function SaAuthLayout({
                                        children,
@@ -13,6 +16,7 @@ export default function SaAuthLayout({
 }) {
     return (
         <SaAuthSplitLayout title={title} description={description} {...props}>
+
             {children}
         </SaAuthSplitLayout>
     );

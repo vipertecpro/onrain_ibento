@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ExGlobalSetting;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -50,6 +51,22 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message')
             ],
             'exhibition' => fn () => currentExhibition(),
+            'exGlobalSettings' => fn () => $this->getAllExGlobalSettings(),
         ];
+    }
+    private function getAllExGlobalSettings(): array
+    {
+        $exhibition = currentExhibition();
+
+        if (! $exhibition) {
+            return [];
+        }
+
+        return ExGlobalSetting::where('exhibition_id', $exhibition->id)
+            ->get()
+            ->mapWithKeys(fn ($row) => [
+                $row->meta_key => $row->meta_value
+            ])
+            ->toArray();
     }
 }

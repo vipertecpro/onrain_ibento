@@ -1,4 +1,4 @@
-
+import '../../../css/subDomainApp.css';
 import { type BreadcrumbItem } from '@/types';
 import SdAppSidebarLayout from '@/layouts/subDomain/auth/sd-app-sidebar-layout';
 import { Head } from '@inertiajs/react';

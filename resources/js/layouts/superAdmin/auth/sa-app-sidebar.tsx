@@ -1,4 +1,3 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import {
     Sidebar,
@@ -9,28 +8,34 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
+
+import { type NavGroup } from '@/types';
 import { Link } from '@inertiajs/react';
-import { LayoutGrid } from 'lucide-react';
-import { SaNavUser } from '@/layouts/superAdmin/auth/sa-nav-user';
+import { LayoutGrid, LayoutList } from 'lucide-react';
+
 import bankai from '@/routes/bankai';
-
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: bankai.dashboard().url,
-        icon: LayoutGrid,
-    },{
-        title: 'Exhibitions',
-        href: bankai.exhibitions.list().url,
-        icon: LayoutGrid,
-    },
-];
-
-const footerNavItems: NavItem[] = [
-];
+import { SaNavUser } from '@/layouts/superAdmin/auth/sa-nav-user';
 
 export function SaAppSidebar() {
+
+    const mainNavGroups: NavGroup[] = [
+        {
+            title: "Platform",
+            items: [
+                {
+                    title: 'Dashboard',
+                    href: bankai.dashboard().url,
+                    icon: LayoutGrid,
+                },
+                {
+                    title: 'Exhibitions',
+                    href: bankai.exhibitions.list().url,
+                    icon: LayoutList,
+                },
+            ]
+        }
+    ];
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
@@ -45,10 +50,9 @@ export function SaAppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain groups={mainNavGroups} />
             </SidebarContent>
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
                 <SaNavUser />
             </SidebarFooter>
         </Sidebar>

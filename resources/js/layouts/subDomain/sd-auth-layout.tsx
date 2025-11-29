@@ -1,3 +1,4 @@
+import '../../../css/subDomainApp.css';
 import SdAuthSplitLayout from '@/layouts/subDomain/auth/sd-auth-split-layout';
 import React from 'react';
 import { Head } from '@inertiajs/react';
