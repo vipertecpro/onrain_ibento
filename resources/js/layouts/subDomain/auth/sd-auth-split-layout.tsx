@@ -22,8 +22,8 @@ export default function SdAuthSplitLayout({
                     <div className="absolute inset-0" />
                 )}
             </div>
-            <div className="w-full lg:p-8">
-                <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+            <div className="w-full lg:p-4">
+                <div className="mx-auto flex flex-col justify-center space-y-3 w-full xl:w-7/10">
                     {children}
                 </div>
             </div>

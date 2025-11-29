@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 class ExVisitorActivity extends Model
 {
     protected $fillable = [
-        'ex_exhibitor_id',
         'ex_visitor_id',
         'type',
         'message',

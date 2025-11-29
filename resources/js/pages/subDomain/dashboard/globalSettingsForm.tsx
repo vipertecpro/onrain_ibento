@@ -25,6 +25,9 @@ export default function GlobalSettingsForm({ pageTitle }: { pageTitle: string })
     const [selectedLoginStatus, setSelectedLoginStatus] = React.useState(
         settings?.is_login_active?.value ?? ""
     );
+    const [selectedVisitorRegistrationStatus, setSelectedVisitorRegistrationStatus] = React.useState(
+        settings?.is_visitor_registration_active?.value ?? ""
+    );
     return (
         <SdAppLayout
             title={pageTitle}
@@ -144,6 +147,53 @@ export default function GlobalSettingsForm({ pageTitle }: { pageTitle: string })
                                         </CardHeader>
                                         <CardContent className="py-2 px-2">
                                             <div className="grid grid-cols-1 gap-4">
+                                                <div className="flex flex-col gap-2">
+                                                    <Label>Is Visitor Registration Active?</Label>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                role="combobox"
+                                                                className="w-full justify-between"
+                                                            >
+                                                                {selectedVisitorRegistrationStatus ? selectedVisitorRegistrationStatus : "Select status" }
+                                                                <ChevronsUpDown size={16} className="opacity-50" />
+                                                            </Button>
+                                                        </PopoverTrigger>
+
+                                                        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                                                            <Command>
+                                                                <CommandInput placeholder="Search..." />
+                                                                <CommandEmpty>No results</CommandEmpty>
+                                                                <CommandGroup>
+                                                                    {["yes", "no"].map((status) => (
+                                                                        <CommandItem
+                                                                            key={status}
+                                                                            onSelect={() => {
+                                                                                setSelectedVisitorRegistrationStatus(status);
+                                                                            }}
+                                                                            className="cursor-pointer"
+                                                                        >
+                                                                            <Check
+                                                                                size={16}
+                                                                                className={cn(
+                                                                                    "mr-2",
+                                                                                    selectedVisitorRegistrationStatus === status
+                                                                                        ? "opacity-100"
+                                                                                        : "opacity-0"
+                                                                                )}
+                                                                            />
+                                                                            {status}
+                                                                        </CommandItem>
+                                                                    ))}
+                                                                </CommandGroup>
+                                                            </Command>
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                    <input type="hidden" name="is_visitor_registration_active" value={selectedVisitorRegistrationStatus} />
+                                                    <InputError message={formState.errors.is_visitor_registration_active} />
+                                                </div>
                                                 <div className="flex flex-col gap-2">
                                                     <Label>Login Side Banner</Label>
                                                     <InputGroup>

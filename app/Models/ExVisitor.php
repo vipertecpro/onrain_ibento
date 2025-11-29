@@ -20,4 +20,8 @@ class ExVisitor extends Model
             'fields' => 'array'
         ];
     }
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }

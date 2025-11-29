@@ -17,7 +17,7 @@ export default function SubdomainDashboard({
             href: dashboard({
                 exhibitionSlug : exhibition.subdomain
             }).url,
-        },
+        }
     ];
     return (
         <SdAppLayout title={pageTitle} breadcrumbs={breadcrumbs}>

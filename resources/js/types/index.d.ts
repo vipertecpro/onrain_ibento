@@ -146,3 +146,10 @@ export interface GlobalSettingsPageProps extends SharedData {
     fields: Record<string, GlobalSettingField>;
     settings: Record<string, GlobalSettingValue>;
 }
+interface RegisterProps {
+    pageTitle: string;
+    pageDescription: string;
+    status?: string;
+    exhibition: Exhibition;
+    formFields: RegistrationFormField[];
+}
